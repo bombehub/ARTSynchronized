@@ -21,7 +21,7 @@ namespace ART_OLC {
 
         LoadKeyFunction loadKey;
 
-        Epoche epoche{256};
+        GarbageManager epoche{256};
 
     public:
         enum class CheckPrefixResult : uint8_t {
@@ -73,9 +73,9 @@ namespace ART_OLC {
         bool lookupRange(const Key &start, const Key &end, Key &continueKey, TID result[], std::size_t resultLen,
                          std::size_t &resultCount, ThreadInfo &threadEpocheInfo) const;
 
-        void insert(const Key &k, TID tid, ThreadInfo &epocheInfo);
+        void insert(const Key &k, TID tid, ThreadInfo &threadInfo);
 
-        void remove(const Key &k, TID tid, ThreadInfo &epocheInfo);
+        void remove(const Key &k, TID tid, ThreadInfo &threadInfo);
     };
 }
 #endif //ART_OPTIMISTICLOCK_COUPLING_N_H

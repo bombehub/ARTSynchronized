@@ -22,7 +22,7 @@ namespace ART_OLC {
     }
 
     TID Tree::lookup(const Key &k, ThreadInfo &threadEpocheInfo) const {
-        EpocheGuardReadonly epocheGuard(threadEpocheInfo);
+        GarbageGuardReadonly epocheGuard(threadEpocheInfo);
         restart:
         bool needRestart = false;
 
@@ -87,7 +87,7 @@ namespace ART_OLC {
                 break;
             }
         }
-        EpocheGuard epocheGuard(threadEpocheInfo);
+        GarbageGuard epocheGuard(threadEpocheInfo);
         TID toContinue = 0;
         std::function<void(const N *)> copy = [&result, &resultSize, &resultsFound, &toContinue, &copy](const N *node) {
             if (N::isLeaf(node)) {
@@ -332,8 +332,8 @@ namespace ART_OLC {
         return 0;
     }
 
-    void Tree::insert(const Key &k, TID tid, ThreadInfo &epocheInfo) {
-        EpocheGuard epocheGuard(epocheInfo);
+    void Tree::insert(const Key &k, TID tid, ThreadInfo &threadInfo) {
+        GarbageGuard epocheGuard(threadInfo);
         restart:
         bool needRestart = false;
 
@@ -396,7 +396,7 @@ namespace ART_OLC {
             if (needRestart) goto restart;
 
             if (nextNode == nullptr) {
-                N::insertAndUnlock(node, v, parentNode, parentVersion, parentKey, nodeKey, N::setLeaf(tid), needRestart, epocheInfo);
+                N::insertAndUnlock(node, v, parentNode, parentVersion, parentKey, nodeKey, N::setLeaf(tid), needRestart, threadInfo);
                 if (needRestart) goto restart;
                 return;
             }
@@ -432,7 +432,7 @@ namespace ART_OLC {
     }
 
     void Tree::remove(const Key &k, TID tid, ThreadInfo &threadInfo) {
-        EpocheGuard epocheGuard(threadInfo);
+        GarbageGuard epocheGuard(threadInfo);
         restart:
         bool needRestart = false;
 

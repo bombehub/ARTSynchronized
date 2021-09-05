@@ -126,7 +126,7 @@ namespace ART_ROWEX {
         parentNode->writeUnlock();
 
         n->writeUnlockObsolete();
-        threadInfo.getEpoche().markNodeForDeletion(n, threadInfo);
+        threadInfo.getGarbageManager().markNodeForDeletion(n, threadInfo);
     }
 
     template<typename curN>
@@ -146,7 +146,7 @@ namespace ART_ROWEX {
         parentNode->writeUnlock();
 
         n->writeUnlockObsolete();
-        threadInfo.getEpoche().markNodeForDeletion(n, threadInfo);
+        threadInfo.getGarbageManager().markNodeForDeletion(n, threadInfo);
     }
 
     void N::insertAndUnlock(N *node, N *parentNode, uint8_t keyParent, uint8_t key, N *val, ThreadInfo &threadInfo, bool &needRestart) {
@@ -262,7 +262,7 @@ namespace ART_ROWEX {
 
         parentNode->writeUnlock();
         n->writeUnlockObsolete();
-        threadInfo.getEpoche().markNodeForDeletion(n, threadInfo);
+        threadInfo.getGarbageManager().markNodeForDeletion(n, threadInfo);
     }
 
     void N::removeAndUnlock(N *node, uint8_t key, N *parentNode, uint8_t keyParent, ThreadInfo &threadInfo, bool &needRestart) {

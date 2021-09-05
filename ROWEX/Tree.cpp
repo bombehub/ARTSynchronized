@@ -20,7 +20,7 @@ namespace ART_ROWEX {
     }
 
     TID Tree::lookup(const Key &k, ThreadInfo &threadEpocheInfo) const {
-        EpocheGuardReadonly epocheGuard(threadEpocheInfo);
+        GarbageGuardReadonly epocheGuard(threadEpocheInfo);
         N *node = root;
         uint32_t level = 0;
         bool optimisticPrefixMatch = false;
@@ -65,7 +65,7 @@ namespace ART_ROWEX {
                 break;
             }
         }
-        EpocheGuard epocheGuard(threadEpocheInfo);
+        GarbageGuard epocheGuard(threadEpocheInfo);
         TID toContinue = 0;
         bool restart;
         std::function<void(const N *)> copy = [&result, &resultSize, &resultsFound, &toContinue, &copy](const N *node) {
@@ -241,8 +241,8 @@ namespace ART_ROWEX {
         return 0;
     }
 
-    void Tree::insert(const Key &k, TID tid, ThreadInfo &epocheInfo) {
-        EpocheGuard epocheGuard(epocheInfo);
+    void Tree::insert(const Key &k, TID tid, ThreadInfo &threadInfo) {
+        GarbageGuard epocheGuard(threadInfo);
         restart:
         bool needRestart = false;
 
@@ -309,7 +309,7 @@ namespace ART_ROWEX {
                 node->lockVersionOrRestart(v, needRestart);
                 if (needRestart) goto restart;
 
-                N::insertAndUnlock(node, parentNode, parentKey, nodeKey, N::setLeaf(tid), epocheInfo, needRestart);
+                N::insertAndUnlock(node, parentNode, parentKey, nodeKey, N::setLeaf(tid), threadInfo, needRestart);
                 if (needRestart) goto restart;
                 return;
             }
@@ -339,7 +339,7 @@ namespace ART_ROWEX {
     }
 
     void Tree::remove(const Key &k, TID tid, ThreadInfo &threadInfo) {
-        EpocheGuard epocheGuard(threadInfo);
+        GarbageGuard epocheGuard(threadInfo);
         restart:
         bool needRestart = false;
 

@@ -6,16 +6,19 @@
 #include "tbb/enumerable_thread_specific.h"
 #include "tbb/combinable.h"
 
-namespace ART {
+namespace ART
+{
 
-    struct LabelDelete {
-        std::array<void*, 32> nodes;
+    struct LabelDelete
+    {
+        std::array<void *, 32> nodes;
         uint64_t epoche;
         std::size_t nodesCount;
         LabelDelete *next;
     };
 
-    class DeletionList {
+    class DeletionList
+    {
         LabelDelete *headDeletionList = nullptr;
         LabelDelete *freeLabelDeletes = nullptr;
         std::size_t deletitionListCount = 0;
@@ -37,30 +40,32 @@ namespace ART {
         std::uint64_t added = 0;
     };
 
-    class Epoche;
-    class EpocheGuard;
+    class GarbageManager;
+    class GarbageGuard;
 
-    class ThreadInfo {
-        friend class Epoche;
-        friend class EpocheGuard;
-        Epoche &epoche;
+    class ThreadInfo
+    {
+        friend class GarbageManager;
+        friend class GarbageGuard;
+        GarbageManager &epoche;
         DeletionList &deletionList;
 
+        DeletionList &getDeletionList() const;
 
-        DeletionList & getDeletionList() const;
     public:
+        ThreadInfo(GarbageManager &epoche);
 
-        ThreadInfo(Epoche &epoche);
-
-        ThreadInfo(const ThreadInfo &ti) : epoche(ti.epoche), deletionList(ti.deletionList) {
+        ThreadInfo(const ThreadInfo &ti) : epoche(ti.epoche), deletionList(ti.deletionList)
+        {
         }
 
         ~ThreadInfo();
 
-        Epoche & getEpoche() const;
+        GarbageManager &getGarbageManager() const;
     };
 
-    class Epoche {
+    class GarbageManager
+    {
         friend class ThreadInfo;
         std::atomic<uint64_t> currentEpoche{0};
 
@@ -68,49 +73,54 @@ namespace ART {
 
         size_t startGCThreshhold;
 
-
     public:
-        Epoche(size_t startGCThreshhold) : startGCThreshhold(startGCThreshhold) { }
+        GarbageManager(size_t startGCThreshhold) : startGCThreshhold(startGCThreshhold) {}
 
-        ~Epoche();
+        ~GarbageManager();
 
-        void enterEpoche(ThreadInfo &epocheInfo);
+        void enterEpoche(ThreadInfo &threadInfo);
 
-        void markNodeForDeletion(void *n, ThreadInfo &epocheInfo);
+        void markNodeForDeletion(void *n, ThreadInfo &threadInfo);
 
         void exitEpocheAndCleanup(ThreadInfo &info);
 
         void showDeleteRatio();
-
     };
 
-    class EpocheGuard {
+    class GarbageGuard
+    {
         ThreadInfo &threadEpocheInfo;
-    public:
 
-        EpocheGuard(ThreadInfo &threadEpocheInfo) : threadEpocheInfo(threadEpocheInfo) {
-            threadEpocheInfo.getEpoche().enterEpoche(threadEpocheInfo);
+    public:
+        GarbageGuard(ThreadInfo &threadEpocheInfo) : threadEpocheInfo(threadEpocheInfo)
+        {
+            threadEpocheInfo.getGarbageManager().enterEpoche(threadEpocheInfo);
         }
 
-        ~EpocheGuard() {
-            threadEpocheInfo.getEpoche().exitEpocheAndCleanup(threadEpocheInfo);
+        ~GarbageGuard()
+        {
+            threadEpocheInfo.getGarbageManager().exitEpocheAndCleanup(threadEpocheInfo);
         }
     };
 
-    class EpocheGuardReadonly {
+    class GarbageGuardReadonly
+    {
     public:
-
-        EpocheGuardReadonly(ThreadInfo &threadEpocheInfo) {
-            threadEpocheInfo.getEpoche().enterEpoche(threadEpocheInfo);
+        GarbageGuardReadonly(ThreadInfo &threadEpocheInfo)
+        {
+            threadEpocheInfo.getGarbageManager().enterEpoche(threadEpocheInfo);
         }
 
-        ~EpocheGuardReadonly() {
+        ~GarbageGuardReadonly()
+        {
         }
     };
 
-    inline ThreadInfo::~ThreadInfo() {
+    inline ThreadInfo::~ThreadInfo()
+    {
         deletionList.localEpoche.store(std::numeric_limits<uint64_t>::max());
     }
+
 }
 
 #endif //ART_EPOCHE_H

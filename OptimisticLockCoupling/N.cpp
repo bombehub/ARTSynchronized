@@ -119,7 +119,7 @@ namespace ART_OLC {
         N::change(parentNode, keyParent, nBig);
 
         n->writeUnlockObsolete();
-        threadInfo.getEpoche().markNodeForDeletion(n, threadInfo);
+        threadInfo.getGarbageManager().markNodeForDeletion(n, threadInfo);
         parentNode->writeUnlock();
     }
 
@@ -231,7 +231,7 @@ namespace ART_OLC {
         N::change(parentNode, keyParent, nSmall);
 
         n->writeUnlockObsolete();
-        threadInfo.getEpoche().markNodeForDeletion(n, threadInfo);
+        threadInfo.getGarbageManager().markNodeForDeletion(n, threadInfo);
         parentNode->writeUnlock();
     }
 

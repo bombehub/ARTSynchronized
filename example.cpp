@@ -165,8 +165,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    singlethreaded(argv);
-
     multithreaded(argv);
 
     return 0;
