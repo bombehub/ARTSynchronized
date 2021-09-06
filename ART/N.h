@@ -10,7 +10,7 @@
 #include <atomic>
 #include <string.h>
 #include "../Key.h"
-#include "../Epoche.h"
+#include "../GarbageManager.h"
 #include <tbb/tbb.h>
 
 using namespace ART;

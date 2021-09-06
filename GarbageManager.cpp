@@ -6,7 +6,7 @@
 
 #include <assert.h>
 #include <iostream>
-#include "Epoche.h"
+#include "GarbageManager.h"
 using namespace ART;
 
 inline DeletionList::~DeletionList()

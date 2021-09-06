@@ -3,7 +3,7 @@
 #include <functional>
 #include "Tree.h"
 #include "N.cpp"
-#include "../Epoche.cpp"
+#include "../GarbageManager.cpp"
 
 namespace ART_ROWEX {
 
